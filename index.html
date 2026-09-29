@@ -4,8 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>QR- &amp; Barcode-Generator</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Bewusst keine Google Fonts oder andere externe Web-Fonts: nur System-Schriftarten, keine IP-Übertragung an Dritte -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.12.3/JsBarcode.all.min.js"></script>
 <style>
@@ -20,6 +19,8 @@
     --grey-line: #C7C7CC;
     --white: #FFFFFF;
     --card-border: rgba(19,19,19,0.10);
+    --font-display: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   }
 
   *{ box-sizing: border-box; }
@@ -29,7 +30,7 @@
     margin:0;
     background: var(--bg);
     color: var(--ink);
-    font-family:'Inter', sans-serif;
+    font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
     position: relative;
   }
@@ -45,23 +46,45 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
+  /* Deko-Grafiken: jeweils in eine eigene, begrenzte Zone eingeschlossen
+     (Kopfbereich / Fußbereich) und mit overflow:hidden gekappt, sodass sie
+     die Karte mit den Eingabefeldern NIE überlagern können — unabhängig
+     von Bildschirmgröße oder Inhaltslänge. */
+  .hero-zone{
+    position:relative;
+    z-index: 1;
+    overflow: hidden;
+    padding-top: 4px;
+  }
+  .footer-zone{
+    position:relative;
+    z-index: 1;
+    overflow: hidden;
+    padding-bottom: 4px;
+  }
   .motifs{
     position:absolute;
     inset: 0;
-    overflow: hidden;
     z-index: 0;
     pointer-events:none;
   }
   .motif{
     position:absolute;
   }
-  .motif--1{ top: 36px; left: 18px; width: 78px; opacity:0.9; }
-  .motif--2{ top: 90px; right: 24px; width: 88px; opacity:0.9; }
-  .motif--3{ bottom: 60px; left: 30px; width: 70px; opacity:0.85; }
-  .motif--4{ bottom: 110px; right: 44px; width: 64px; opacity:0.85; }
-  .motif--5{ top: 420px; left: 4%; width: 56px; opacity:0.7; }
-  @media (max-width: 860px){
-    .motif--2, .motif--4, .motif--5{ display:none; }
+  .motifs--top .motif--1{ top: 4px; left: 0; width: 60px; opacity:0.9; }
+  .motifs--top .motif--2{ top: 8px; right: 0; width: 66px; opacity:0.9; }
+  .motifs--top .motif--5{ top: 108px; left: 2%; width: 44px; opacity:0.6; }
+  .motifs--bottom .motif--3{ top: 6px; left: 0; width: 54px; opacity:0.85; }
+  .motifs--bottom .motif--4{ top: 2px; right: 4%; width: 46px; opacity:0.85; }
+
+  /* Handy: Deko komplett ausblenden — maximaler Platz, kein Überlappungsrisiko */
+  @media (max-width: 639px){
+    .motifs{ display:none; }
+  }
+  /* Tablet/kleines Notebook: nur die dezentesten Elemente zeigen */
+  @media (min-width: 640px) and (max-width: 899px){
+    .motifs--top .motif--5,
+    .motifs--bottom .motif--4{ display:none; }
   }
 
   .wrap{
@@ -70,6 +93,9 @@
     max-width: 1060px;
     margin: 0 auto;
     padding: 40px 24px 90px;
+  }
+  @media (max-width: 480px){
+    .wrap{ padding: 28px 16px 70px; }
   }
 
   /* ---- Kopf ---- */
@@ -86,7 +112,7 @@
     border-radius: 50%;
   }
   .mark{
-    font-family:'Space Grotesk', sans-serif;
+    font-family: var(--font-display);
     font-weight: 600;
     font-size: 14px;
     letter-spacing: 0.06em;
@@ -100,7 +126,7 @@
     padding: 28px 0 40px;
   }
   .hero-text h1{
-    font-family:'Space Grotesk', sans-serif;
+    font-family: var(--font-display);
     font-weight: 700;
     font-size: clamp(30px, 4.6vw, 46px);
     line-height: 1.08;
@@ -128,7 +154,7 @@
     display:inline-flex;
     align-items:center;
     gap: 8px;
-    font-family:'Space Grotesk', sans-serif;
+    font-family: var(--font-display);
     font-weight: 600;
     font-size: 14px;
     color: var(--ink-muted);
@@ -139,12 +165,16 @@
     cursor:pointer;
     transition: background 0.15s ease, color 0.15s ease;
   }
-  .tab svg{ width:16px; height:16px; }
+  .tab svg{ width:16px; height:16px; flex-shrink:0; }
   .tab.active{
     background: var(--ink);
     color: #fff;
   }
   .tab:focus-visible{ outline: 2px solid var(--blue); outline-offset: 2px; }
+  @media (max-width: 479px){
+    .tabs{ display:flex; width:100%; }
+    .tab{ flex:1; justify-content:center; padding: 10px 12px; font-size: 13px; }
+  }
 
   /* ---- Karte ---- */
   .card{
@@ -156,6 +186,9 @@
   }
   @media (max-width: 620px){
     .card{ padding: 22px; }
+  }
+  @media (max-width: 380px){
+    .card{ padding: 16px; }
   }
 
   .tab-content{ display:none; }
@@ -188,7 +221,7 @@
   .controls input[type="text"],
   .controls textarea,
   .controls select{
-    font-family:'Inter', sans-serif;
+    font-family: var(--font-body);
     font-size: 14px;
     font-weight: 500;
     color: var(--ink);
@@ -203,6 +236,15 @@
   .controls select:focus{
     outline: none;
     border-color: var(--blue);
+  }
+  /* Mindestens 16px Schriftgröße in Formularfeldern, sonst zoomt iOS Safari
+     beim Fokussieren automatisch hinein — das würde das Layout verschieben. */
+  @media (max-width: 639px){
+    .controls input[type="text"],
+    .controls textarea,
+    .controls select{
+      font-size: 16px;
+    }
   }
   .controls input[type="range"]{ accent-color: var(--purple); }
   .controls input[type="color"]{
@@ -264,7 +306,7 @@
     justify-content:center;
   }
   .download{
-    font-family:'Space Grotesk', sans-serif;
+    font-family: var(--font-display);
     font-size: 14px;
     font-weight: 600;
     color: #fff;
@@ -299,6 +341,23 @@
     color: var(--ink-muted);
     margin:0;
   }
+  .footer-links{
+    display:flex;
+    justify-content:center;
+    gap: 18px;
+    margin-top: 12px;
+  }
+  .footer-links a{
+    font-size: 13px;
+    color: var(--ink-muted);
+    text-decoration: underline;
+    text-decoration-color: var(--grey-line);
+    text-underline-offset: 2px;
+  }
+  .footer-links a:hover{
+    color: var(--ink);
+    text-decoration-color: var(--ink);
+  }
 </style>
 </head>
 <body>
@@ -306,62 +365,47 @@
 
 <div class="wrap">
 
-  <div class="motifs" aria-hidden="true">
-    <svg class="motif motif--1" viewBox="0 0 80 80" fill="none">
-      <rect width="80" height="80" fill="var(--purple)"/>
-      <g stroke="#000" stroke-width="1.4">
-        <line x1="0" y1="16" x2="80" y2="16"/><line x1="0" y1="32" x2="80" y2="32"/>
-        <line x1="0" y1="48" x2="80" y2="48"/><line x1="0" y1="64" x2="80" y2="64"/>
-        <line x1="16" y1="0" x2="16" y2="80"/><line x1="32" y1="0" x2="32" y2="80"/>
-        <line x1="48" y1="0" x2="48" y2="80"/><line x1="64" y1="0" x2="64" y2="80"/>
-      </g>
-    </svg>
+  <div class="hero-zone">
+    <div class="motifs motifs--top" aria-hidden="true">
+      <svg class="motif motif--1" viewBox="0 0 80 80" fill="none">
+        <rect width="80" height="80" fill="var(--purple)"/>
+        <g stroke="#000" stroke-width="1.4">
+          <line x1="0" y1="16" x2="80" y2="16"/><line x1="0" y1="32" x2="80" y2="32"/>
+          <line x1="0" y1="48" x2="80" y2="48"/><line x1="0" y1="64" x2="80" y2="64"/>
+          <line x1="16" y1="0" x2="16" y2="80"/><line x1="32" y1="0" x2="32" y2="80"/>
+          <line x1="48" y1="0" x2="48" y2="80"/><line x1="64" y1="0" x2="64" y2="80"/>
+        </g>
+      </svg>
 
-    <svg class="motif motif--2" viewBox="0 0 90 90" fill="none">
-      <rect width="90" height="90" fill="var(--blue)"/>
-      <path d="M0 15 Q11 5 22 15 T44 15 T66 15 T90 15" stroke="#000" stroke-width="4" fill="none"/>
-      <path d="M0 37 Q11 27 22 37 T44 37 T66 37 T90 37" stroke="#000" stroke-width="4" fill="none"/>
-      <path d="M0 59 Q11 49 22 59 T44 59 T66 59 T90 59" stroke="#000" stroke-width="4" fill="none"/>
-      <path d="M0 81 Q11 71 22 81 T44 81 T66 81 T90 81" stroke="#000" stroke-width="4" fill="none"/>
-    </svg>
+      <svg class="motif motif--2" viewBox="0 0 90 90" fill="none">
+        <rect width="90" height="90" fill="var(--blue)"/>
+        <path d="M0 15 Q11 5 22 15 T44 15 T66 15 T90 15" stroke="#000" stroke-width="4" fill="none"/>
+        <path d="M0 37 Q11 27 22 37 T44 37 T66 37 T90 37" stroke="#000" stroke-width="4" fill="none"/>
+        <path d="M0 59 Q11 49 22 59 T44 59 T66 59 T90 59" stroke="#000" stroke-width="4" fill="none"/>
+        <path d="M0 81 Q11 71 22 81 T44 81 T66 81 T90 81" stroke="#000" stroke-width="4" fill="none"/>
+      </svg>
 
-    <svg class="motif motif--3" viewBox="0 0 70 70" fill="none">
-      <rect width="70" height="70" fill="var(--purple)"/>
-      <circle cx="12" cy="12" r="7" fill="#fff"/><circle cx="35" cy="12" r="7" fill="#fff"/><circle cx="58" cy="12" r="7" fill="#fff"/>
-      <circle cx="12" cy="35" r="7" fill="#fff"/><circle cx="35" cy="35" r="7" fill="#fff"/><circle cx="58" cy="35" r="7" fill="#fff"/>
-      <circle cx="12" cy="58" r="7" fill="#fff"/><circle cx="35" cy="58" r="7" fill="#fff"/><circle cx="58" cy="58" r="7" fill="#fff"/>
-    </svg>
-
-    <svg class="motif motif--4" viewBox="0 0 64 64" fill="none">
-      <g stroke="#000" stroke-width="2.5" stroke-linecap="round">
-        <line x1="32" y1="2" x2="32" y2="62"/>
-        <line x1="2" y1="32" x2="62" y2="32"/>
-        <line x1="10" y1="10" x2="54" y2="54"/>
-        <line x1="54" y1="10" x2="10" y2="54"/>
-      </g>
-    </svg>
-
-    <svg class="motif motif--5" viewBox="0 0 56 56" fill="none">
-      <g stroke="#000" stroke-width="1.6" fill="none">
-        <circle cx="28" cy="28" r="22"/>
-        <circle cx="28" cy="28" r="14"/>
-        <circle cx="28" cy="28" r="6"/>
-      </g>
-    </svg>
-  </div>
-
-  <header class="site-header">
-    <span class="dot" aria-hidden="true"></span>
-    <span class="mark">QR &amp; Barcode Generator</span>
-  </header>
-
-  <section class="hero">
-    <div class="hero-text">
-      <h1>Erzeuge deinen Code.</h1>
-      <p>Text eingeben, Format wählen, Code herunterladen — läuft komplett lokal in deinem Browser, ohne Uploads oder Speicherung.</p>
+      <svg class="motif motif--5" viewBox="0 0 56 56" fill="none">
+        <g stroke="#000" stroke-width="1.6" fill="none">
+          <circle cx="28" cy="28" r="22"/>
+          <circle cx="28" cy="28" r="14"/>
+          <circle cx="28" cy="28" r="6"/>
+        </g>
+      </svg>
     </div>
 
-  </section>
+    <header class="site-header">
+      <span class="dot" aria-hidden="true"></span>
+      <span class="mark">QR &amp; Barcode Generator</span>
+    </header>
+
+    <section class="hero">
+      <div class="hero-text">
+        <h1>Erzeuge deinen Code.</h1>
+        <p>Text eingeben, Format wählen, Code herunterladen — läuft komplett lokal in deinem Browser, ohne Uploads oder Speicherung.</p>
+      </div>
+    </section>
+  </div>
 
   <section class="tool" aria-label="Code-Generator">
     <div class="tabs" role="tablist">
@@ -462,9 +506,33 @@
     </div>
   </section>
 
-  <footer class="site-footer">
-    <p>Läuft vollständig lokal im Browser. Es werden keine Eingaben übertragen oder gespeichert.</p>
-  </footer>
+  <div class="footer-zone">
+    <div class="motifs motifs--bottom" aria-hidden="true">
+      <svg class="motif motif--3" viewBox="0 0 70 70" fill="none">
+        <rect width="70" height="70" fill="var(--purple)"/>
+        <circle cx="12" cy="12" r="7" fill="#fff"/><circle cx="35" cy="12" r="7" fill="#fff"/><circle cx="58" cy="12" r="7" fill="#fff"/>
+        <circle cx="12" cy="35" r="7" fill="#fff"/><circle cx="35" cy="35" r="7" fill="#fff"/><circle cx="58" cy="35" r="7" fill="#fff"/>
+        <circle cx="12" cy="58" r="7" fill="#fff"/><circle cx="35" cy="58" r="7" fill="#fff"/><circle cx="58" cy="58" r="7" fill="#fff"/>
+      </svg>
+
+      <svg class="motif motif--4" viewBox="0 0 64 64" fill="none">
+        <g stroke="#000" stroke-width="2.5" stroke-linecap="round">
+          <line x1="32" y1="2" x2="32" y2="62"/>
+          <line x1="2" y1="32" x2="62" y2="32"/>
+          <line x1="10" y1="10" x2="54" y2="54"/>
+          <line x1="54" y1="10" x2="10" y2="54"/>
+        </g>
+      </svg>
+    </div>
+
+    <footer class="site-footer">
+      <p>Läuft vollständig lokal im Browser. Es werden keine Eingaben übertragen oder gespeichert.</p>
+      <nav class="footer-links">
+        <a href="https://neu.fless.me/impressum/">fless.me/impressum/</a>
+        <a href="https://neu.fless.me/datenschutz/">fless.me/datenschutz/</a>
+      </nav>
+    </footer>
+  </div>
 
 </div>
 
